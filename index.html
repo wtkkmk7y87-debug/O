@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>手書きマップ GPS</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+       #map { height: 100vh; width: 100%; }
+       body { margin: 0; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+       // 1. Map WarperのタイルURLを設定
+       const mapWarperUrl = 'https://mapwarper.net/maps/tile/XXXXX/{z}/{x}/{y}.png';
+       // 2. 地図の初期化（中心座標はMap Warperで設定した場所付近にしてください）
+       const map = L.map('map').setView([35.0, 135.0], 16);
+       // 背景にOpenStreetMapを表示（任意）
+       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+           attribution: '&copy; OpenStreetMap contributors'
+       }).addTo(map);
+       // Map Warperの手書き地図を重ねる
+       L.tileLayer(mapWarperUrl, {
+           attribution: 'Hand-drawn Map via Map Warper',
+           transparent: true
+       }).addTo(map);
+       // 3. GPS現在地の取得
+       map.locate({setView: true, watch: true, maxZoom: 18, enableHighAccuracy: true});
+       // 現在地を示すマーカー
+       const userMarker = L.marker([0, 0]).addTo(map);
+       function onLocationFound(e) {
+           userMarker.setLatLng(e.latlng);
+       }
+       map.on('locationfound', onLocationFound);
+       map.on('locationerror', (e) => alert("GPSが取得できませんでした: " + e.message));
+</script>
+</body>
+</html>
